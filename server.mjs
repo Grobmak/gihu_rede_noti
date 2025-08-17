@@ -8,21 +8,8 @@ import { randomUUID } from "node:crypto";
 const app = express();
 app.set("trust proxy", true);
 app.use(helmet({ crossOriginResourcePolicy: false }));
-const ALLOW = (process.env.CORS_ALLOW || "").split(",").map(s => s.trim()).filter(Boolean);
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || ALLOW.length === 0 || ALLOW.includes(origin)) return cb(null, true);
-    return cb(new Error("CORS"), false);
-  }
-}));
-
-const API_KEY = process.env.API_KEY || "";
-app.use((req, res, next) => {
-  if (!API_KEY) return next(); // ถ้าไม่ตั้งค่า ก็ข้ามการตรวจ
-  const k = req.headers["x-api-key"];
-  if (k === API_KEY) return next();
-  return res.status(401).json({ error: "unauthorized" });
-});
+app.use(cors());
+app.use(express.json({ limit: "1mb" }));
 
 // ---- minimal request logging
 app.use((req, res, next) => {
@@ -43,33 +30,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-// rate limit in-memory: RATE_LIMIT req / RATE_WINDOW_MS
-const RATE_LIMIT = Number(process.env.RATE_LIMIT || 120);
-const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 60_000);
-const bucket = new Map(); // ip -> {n, reset}
-app.use((req, res, next) => {
-  const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "0";
-  const now = Date.now();
-  const cur = bucket.get(ip) || { n: 0, reset: now + RATE_WINDOW_MS };
-  if (now > cur.reset) { cur.n = 0; cur.reset = now + RATE_WINDOW_MS; }
-  cur.n += 1;
-  bucket.set(ip, cur);
-  if (cur.n > RATE_LIMIT) {
-    const retry = Math.ceil((cur.reset - now)/1000);
-    res.setHeader("Retry-After", retry);
-    return fail(res, 429, "rate_limited", `try after ${retry}s`);
-  }
-  next();
-});
-อัปเดต .env.example
-env
-Copy
-Edit
-API_KEY=changeme
-CORS_ALLOW=                       # คอมมาแยกโดเมน ถ้าว่าง=อนุญาตทุก origin
-RATE_LIMIT=120                    # req ต่อ window
-RATE_WINDOW_MS=60000              # ขนาดหน้าต่าง ms
 
 // ---------- Auth / Context ----------
 function getToken(req) {
@@ -550,31 +510,6 @@ app.get("/db_props", aw(async (req, res) => {
   const notion = notionClient(req);
   const meta = await getDbMeta(notion, dbId);
   res.json(meta.propTypes);
-}));
-
-app.get("/db_options", aw(async (req, res) => {
-  const dbId = getDbId(req);
-  const raw = req.query.prop;
-  if (!dbId) return fail(res, 400, "missing_database_id", "missing database_id");
-  if (!raw)  return fail(res, 400, "missing_prop", "prop required");
-
-  const notion = notionClient(req);
-  const meta = await getDbMeta(notion, dbId);
-  const prop = resolveProp(meta, raw);
-  if (!prop) return fail(res, 400, "unknown_property", raw);
-
-  const full = await notion.databases.retrieve({ database_id: dbId });
-  const def = full.properties[prop];
-  const t = def?.type;
-  if (!t) return fail(res, 400, "unknown_type", prop);
-
-  let options = [];
-  if (t === "status")       options = def.status.options.map(o => ({ name: o.name, color: o.color }));
-  else if (t === "select")  options = def.select.options.map(o => ({ name: o.name, color: o.color }));
-  else if (t === "multi_select") options = def.multi_select.options.map(o => ({ name: o.name, color: o.color }));
-  else return fail(res, 400, "not_option_type", `type=${t}`);
-
-  res.json({ prop, type: t, options });
 }));
 
 // ---------- list_pages (GET/POST) ----------
