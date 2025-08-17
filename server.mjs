@@ -142,15 +142,18 @@ async function queryWithRetry(notion, query, tries = 3) {
 
 // ---------- Aliases (TH/EN) ----------
 const PROP_ALIASES = {
-  "ราคา": "Budget",
-  "งบประมาณ": "Budget",
-  "เปอร์เซ็นต์ความคืบหน้า": "Completion %",
-  "percent": "Completion %",
-  "progress": "Completion %",
+  "ราคา": "Budget", "งบประมาณ": "Budget",
   "สถานะ": "Status",
-  "แท็ก": "Tags",
-  "แแท็ก": "Tags",
+  "แท็ก": "Tags", "แแท็ก": "Tags",
+  "ความสำคัญ": "Priority",
+  "กำหนดส่ง": "Deadline",
+  "ผู้รับผิดชอบ": "Assignee",
+  "คำอธิบาย": "Description",
+  "โน้ต": "Notes",
+  "ที่เกี่ยวข้อง": "Related",
+  "เปอร์เซ็นต์ความคืบหน้า": "Completed %", // ← แก้ชื่อให้ตรงสคีมา
 };
+
 const ALIAS_OUT = {};
 for (const [k, v] of Object.entries(PROP_ALIASES)) {
   if (/[^\u0000-\u007F]/.test(k) && !ALIAS_OUT[v]) ALIAS_OUT[v] = k;
