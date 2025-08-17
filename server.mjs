@@ -11,6 +11,15 @@ app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+const API_KEY = process.env.API_KEY || "";
+app.use((req, res, next) => {
+  if (!API_KEY) return next(); // ถ้าไม่ตั้งค่า ก็ข้ามการตรวจ
+  const k = req.headers["x-api-key"];
+  if (k === API_KEY) return next();
+  return res.status(401).json({ error: "unauthorized" });
+});
+
+
 // ---- minimal request logging
 app.use((req, res, next) => {
   const t0 = Date.now();
