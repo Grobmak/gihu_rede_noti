@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: notion-mcp-server
+    env: node
+    plan: free
+    buildCommand: "npm ci"
+    startCommand: "npm start"
+    autoDeploy: true
+    envVars:
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_DATABASE_ID
+        sync: false
+      - key: PORT
+        value: "3000"

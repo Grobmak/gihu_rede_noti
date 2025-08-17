@@ -1,0 +1,24 @@
+﻿# Env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage / build
+coverage/
+dist/
