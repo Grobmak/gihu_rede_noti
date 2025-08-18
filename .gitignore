@@ -1,4 +1,4 @@
-﻿# Env
+# Env
 .env
 .env.*
 !.env.example
@@ -13,6 +13,11 @@ pnpm-debug.log*
 logs/
 *.log
 *.log.*
+
+# Editor
+.vscode/
+.idea/
+*.swp
 
 # OS junk
 .DS_Store

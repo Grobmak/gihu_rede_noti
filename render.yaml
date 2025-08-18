@@ -3,13 +3,15 @@ services:
     name: notion-mcp-server
     env: node
     plan: free
-    buildCommand: "npm ci"
-    startCommand: "npm start"
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
     autoDeploy: true
+    healthCheckPath: /healthz
+    # Render จะกำหนด PORT เอง อิงจาก env PORT ที่ process.env.PORT
     envVars:
       - key: NOTION_TOKEN
-        sync: false
+        sync: false   # กรอกใน Dashboard เพื่อความปลอดภัย
       - key: NOTION_DATABASE_ID
         sync: false
       - key: PORT
-        value: "3000"
+        value: "10000"
