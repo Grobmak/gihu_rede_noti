@@ -3,10 +3,12 @@
   extends: ["standard","prettier"],
   parserOptions: { ecmaVersion: "latest", sourceType: "module" },
   rules: {
-    "no-irregular-whitespace": "off",
-    "no-case-declarations": "off",
-    "camelcase": "off",
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "no-console": "off"
+    "promise/param-names":"error",
+    "no-irregular-whitespace":"error",
+    "no-case-declarations":"off",    // ปิดก่อน ถ้าจะเปิดให้ห่อ {} ตามข้อ 4
+    "camelcase":"off",
+    "no-unused-vars":["warn",{"argsIgnorePattern":"^_","varsIgnorePattern":"^_"}],
+    "no-console":"off"
   }
 };
+
