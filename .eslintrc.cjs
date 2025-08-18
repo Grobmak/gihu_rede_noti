@@ -5,7 +5,6 @@
   rules: {
     "no-irregular-whitespace": "off",
     "no-case-declarations": "off",
-    "promise/param-names": "off",
     "camelcase": "off",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "no-console": "off"
